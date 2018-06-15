@@ -1,0 +1,567 @@
+import java.util.Arrays;
+import java.util.Random;
+
+public class IntArrays {
+
+	private int[] values;
+	
+	private int currentSize;
+	
+	public IntArrays(int[] array, int size) // if statement for boundaries of size: size can't be negative or greater than values.length. set currentSize to values.length.
+	{
+		if (array == null)
+		{
+			values = new int[10];
+			currentSize = values.length;
+			System.out.println("ERROR");
+		} else if (size < 0 || size > array.length)
+		{
+			values = array;
+			currentSize = array.length;
+			System.out.println("ERROR");
+		} else
+		{
+			values = array;
+			currentSize = size;
+		}
+	}
+	
+	public IntArrays()
+	{
+		this(10);
+	}
+	
+	public IntArrays(int capacity)
+	{
+		if (capacity > 0)
+		{
+			values = new int[capacity]; // capacity could not be negative. if is then create default array [IntArray()]. Print out error message
+		} else
+		{
+			values = new int[10];
+			System.out.println("ERROR");
+		}
+		currentSize = 0;
+	}
+	
+	public int min()
+	{
+		if (currentSize > 0)
+		{
+			int minIndex = 0;
+			for (int index = 1; index < currentSize; index++)
+			{
+				if (values[index] < values[minIndex])
+				{
+					minIndex = index;
+				}
+			}
+			return values[minIndex];
+		}
+		return -1;
+	}	
+	
+	public int max() // fix like min method
+	{	
+		if (currentSize > 0)
+		{
+			int maxIndex = 0;
+			for (int index = 1; index < currentSize; index++)
+			{
+				if (values[index] > values[maxIndex])
+				{
+					maxIndex = index;
+				}
+			}
+			return values[maxIndex];
+		}
+		return -1;
+	}
+	
+	public int sum()
+	{
+		int total = 0;
+		for (int index = 0; index < currentSize; index++)
+		{
+			total += values[index];
+		}
+		return total;
+	}
+	
+	public double average() 
+	{
+		if (currentSize > 0)
+		{
+			double average;
+			average = this.sum() / (double) currentSize;
+			return average;
+		}
+		return -1;
+	}
+	
+	
+	public boolean contains(int number)
+	{
+		return (this.indexOf(number) != -1);
+	}
+	
+	public int count(int number)
+	{
+		int numberOfTimes = 0;
+		for (int index = 0; index < currentSize; index++)
+		{
+			if (values[index] == number)
+			{
+				numberOfTimes++;
+			}
+		}
+		return numberOfTimes;
+	}
+	
+	public int indexOf(int number)
+	{
+		for (int index = 0; index < currentSize; index++)
+		{
+			if (values[index] == number)
+			{
+				return index;
+			}
+		}
+		return -1;
+	}
+	
+	public int lastIndexOf(int number)
+	{
+		for (int index = currentSize - 1; index >= 0; index--)
+		{
+			if (values[index] == number)
+			{
+				return index;
+			}
+		}
+		return -1;
+	}
+	
+	public void print()
+	{
+		for (int index = 0; index < currentSize - 1; index++)
+		{
+			System.out.print(values[index] + ",");	
+		}
+		System.out.println(values[currentSize - 1]);
+	}
+	
+	public boolean swap(int index1, int index2) // supposed to check if true and false. and then change values to correct values. should be able to print out correct array.
+	{
+		if (index1 < currentSize && index2 < currentSize && index1 >= 0 && index2 >= 0 && index1 == index2)
+		{
+			int temp = values[index1];
+			values[index1] = values[index2];
+			values[index2] = temp;
+			return true;
+		}
+		return false;	
+	}
+	
+	public int size()
+	{
+		return currentSize;
+	}
+	
+	public boolean isEmpty()
+	{
+		return (currentSize == 0);
+	}
+	
+	public void clear()
+	{
+		currentSize = 0;
+	}
+	
+	public int get(int index)
+	{
+		if (index >= 0 && index < currentSize)
+		{
+			return values[index];
+		} else
+		{
+			return -1;
+		}
+	}
+	
+	public boolean set(int index, int number)
+	{
+		if (index >= 0 && index < currentSize)
+		{
+			values[index] = number;
+			return true;
+		}
+		return false;
+	}
+	
+	public int[] clone()
+	{
+		int[] newValues = new int[values.length];
+		for (int index = 0; index < currentSize; index++)
+		{
+			newValues[index] = values[index];
+		}
+		return newValues;
+	}
+	
+	public int[] subList(int fromIndex, int toIndex) // fix subList
+	{
+		if (fromIndex > 0 && toIndex > 0 && toIndex > fromIndex && fromIndex > values.length && toIndex > values.length)
+		{
+			int[] newValues = new int[toIndex - fromIndex];
+			for (int index = fromIndex; index < toIndex; index++)
+			{
+				newValues[index - fromIndex] = values[index];
+			}
+			return newValues;
+		} else
+		{
+			System.out.println("ERROR");
+			return values;
+		}
+	}
+	
+	public int removeByIndex(int index) // range of index is 0 to currentSize, if isnt return -1.
+	{
+		if (index >= 0 && index < currentSize)
+		{
+			int removedNumber = values[index];
+			for (int newIndex = index + 1; newIndex < currentSize; newIndex++)
+			{
+				values[newIndex - 1] = values[newIndex];
+			}
+			currentSize--;
+			return removedNumber;
+		} else
+		{
+			return -1;
+		}
+	}
+	
+	public boolean remove(int number)
+	{
+		if (this.removeByIndex(this.indexOf(number)) != -1)
+		{
+			return true;
+		} 
+		return false;
+	}
+	
+	public boolean ensureCapacity(int minCapacity) // check values.length not currentSize
+	{
+		while (minCapacity > values.length)
+		{
+			int[] myArray = new int[minCapacity];
+			for (int index = 0; index < currentSize; index++)
+			{
+				myArray[index] = values[index];
+			}
+			values = myArray;
+		}
+		return true;
+	}
+	
+	public boolean add(int number) //check for capacity
+	{
+			if (currentSize >= values.length)
+			{
+				this.ensureCapacity(2 * values.length + 1);
+				//values[currentSize] = number;
+				//currentSize++;
+				//return true;
+			}
+			values[currentSize] = number;
+			currentSize++;
+			return true;
+	}
+	
+	public boolean add(int index, int number) // check index and check for capacity
+	{
+		if (index >= 0 && index <= values.length)
+		{
+			if (currentSize >= values.length)
+			{
+				this.ensureCapacity(currentSize + 1);
+			}
+			currentSize++;
+			for (int newIndex = currentSize - 1; newIndex > index; newIndex--)
+			{
+				values[newIndex] = values[newIndex - 1];
+			}
+			values[index] = number;
+			return true;
+		} else
+		{
+			return false;
+		}
+		
+	}
+	
+	public boolean sort() //mutable
+	{
+		int temp;
+		for(int index = 0; index < values.length; index++)
+			{
+			    for (int newIndex = index + 1; newIndex < values.length; newIndex++)
+			    {
+			        if(values[index] > values[newIndex])
+			        {
+			            temp = values[index];
+			            values[index] = values[newIndex];
+			            values[newIndex] = temp;
+			        }
+			    }
+			}
+			return true;
+		
+		
+	}
+	
+	public int[] sorted() // immutable, returns IntArrays object
+	{
+		int[] newArrays = new int[values.length];
+		newArrays[0] = values[0];
+		for (int index = 1; index < values.length; index++)
+		{
+			if (newArrays[0] > values[index])
+			{
+				newArrays[0] = values[index];
+			}
+		}
+		for (int index = 1; index < values.length; index++)
+		{
+			newArrays[index] = values[0];
+			for (int innerIndex = 1; innerIndex < values.length; innerIndex++)
+			{
+				if (values[innerIndex] < newArrays[index] && values[innerIndex] > newArrays[index - 1])
+				{
+					newArrays[index] = values[innerIndex];
+				}
+			}
+		}
+		return newArrays;
+	}
+	
+	public boolean search(int number)
+	{
+		if (values.length > 0) // put values.length on same line
+		{
+			if (number >= values[0] && number <= values[values.length - 1])
+			{
+				int secondEndpoint = values.length - 1;
+				int firstEndpoint = 0;
+				while (secondEndpoint >= firstEndpoint)
+				{
+					int middleIndex = (firstEndpoint + secondEndpoint) / 2;
+					if (number < values[middleIndex])
+					{
+						secondEndpoint = middleIndex - 1;
+					} else if (number > values[middleIndex])
+					{
+						firstEndpoint = middleIndex + 1;
+					} else
+					{
+						return true;
+					}
+				}
+			}
+		}
+		return false;
+	}
+	
+	public boolean bubbleSort()
+	{
+		int temp;
+		if (values.length > 0)
+		{
+			for (int index = 0; index < values.length; index++)
+			{
+				for (int testIndex = index + 1; testIndex < values.length; testIndex++)
+				{
+					if (values[index] > values[testIndex])
+					{
+						temp = values[index];
+			            values[index] = values[testIndex];
+			            values[testIndex] = temp;
+					}
+				}
+			}
+			return true;
+		}
+		return false;
+		
+	}
+	
+	public boolean isSorted()
+	{
+		for (int index = 0; index < values.length - 1; index++)
+		{
+			if (values[index + 1] < values[index])
+			{
+				return false;
+			}
+			
+		}
+		return true;
+	}
+	
+	public int[] merge(int[] otherArray)
+	{
+		int[] newList = new int[values.length + otherArray.length];
+		int valuesIndex = 0, otherArrayIndex = 0, newListIndex = 0;
+	    while (valuesIndex < values.length && otherArrayIndex < otherArray.length)
+	    {
+	        if (values[valuesIndex] < otherArray[otherArrayIndex])
+	        {
+	            newList[newListIndex] = values[valuesIndex];
+	            valuesIndex++;
+	        }
+	        else
+	        {
+	            newList[newListIndex] = otherArray[otherArrayIndex];
+	            otherArrayIndex++;
+	        }
+	        newListIndex++;
+	    }
+
+	    while (valuesIndex < values.length)
+	    {
+	        newList[newListIndex] = values[valuesIndex];
+	        valuesIndex++;
+	        newListIndex++;
+	    }
+
+	    while (otherArrayIndex < otherArray.length)
+	    {
+	        newList[newListIndex] = otherArray[otherArrayIndex];
+	        otherArrayIndex++;
+	        newListIndex++;
+	    }
+	    
+	    return newList;
+	}
+	
+	public int[] permutation(int beginNumber, int endNumber)
+	{
+		Random number = new Random();
+		int[] permutationArray = new int[(endNumber - beginNumber) + 1];
+		int temp;
+		for (int index = 0; index < permutationArray.length; index++)
+		{
+			permutationArray[index] = beginNumber + index; 
+		}
+		//for (int number = beginNumber; number <= endNumber; number++)
+		//{
+			//permutationArray[number - beginNumber] = number;
+		//}
+		//for each number in the permutation array swap that number with a number from random position
+		for (int numberTest = 0; numberTest < permutationArray.length; numberTest++)
+		{
+			int numberSwapIndex = number.nextInt(permutationArray.length);
+			temp = permutationArray[numberTest];
+			permutationArray[numberTest] = permutationArray[numberSwapIndex];
+			permutationArray[numberSwapIndex] = temp;
+		}
+		return permutationArray;	
+	}
+	
+	//take in any two values. begining value and end value. 
+
+	public boolean isPermutation(int[] array)
+	{
+		boolean[] groupArray = new boolean[array.length];
+		for (int groupIndex = 0; groupIndex < groupArray.length; groupIndex++)
+		{
+			groupArray[groupIndex] = false;
+		}
+		int minIndex = 0;
+		int maxIndex = 0;
+		int endNumber = 0;
+		int beginNumber = 0;
+		for (int index = 0; index < array.length; index++)
+		{
+			if (values[index] < values[minIndex])
+			{
+				minIndex = index;
+			}
+			beginNumber = values[minIndex];
+			if (values[index] > values[maxIndex])
+			{
+				maxIndex = index;
+			}
+			endNumber = values[maxIndex];
+		}
+		//System.out.println(beginNumber);
+		//System.out.println(endNumber);
+		for (int increment = 0; increment < array.length; increment++)
+		{
+			int compareNumber = beginNumber + increment;
+			if (groupArray[compareNumber - beginNumber])
+			{
+				return false;
+			}
+			groupArray[compareNumber - beginNumber] = true;
+			System.out.println(increment);
+			System.out.println(groupArray[increment]);
+			
+			//if (groupArray[array[index] - 1])
+			//{
+			//	return false;
+			//}
+			//groupArray[array[index] - 1] = true;
+			
+		}
+		return true;
+		/*
+		int minIndex = 0;
+		int maxIndex = 0;
+		int endNumber = 0;
+		int beginNumber = 0;
+		for (int index = 0; index < array.length; index++)
+		{
+			if (values[index] < values[minIndex])
+			{
+				minIndex = index;
+			}
+			beginNumber = values[minIndex];
+			if (values[index] > values[maxIndex])
+			{
+				maxIndex = index;
+			}
+			endNumber = values[maxIndex];
+		}
+		int count = 0;
+		for (int compareNumber = beginNumber; compareNumber <= endNumber; compareNumber++)
+		{
+			System.out.println("Outer compareNumber " + compareNumber);
+			for (int index = 0; index < array.length; index++)
+			{
+				if (compareNumber == array[index])
+				{
+					count++;
+					System.out.println("Count "+ count);
+					System.out.println("CompareNumber " + compareNumber);
+				} 
+			}
+			//System.out.println(compareNumber);
+		}
+		if (count == array.length)
+		{
+			return true;
+		} else
+		{
+			return false;
+		}
+	
+	//array from any set of numbers check if it is permutation ex. [77,78,80,79,81] is permutation
+		//have to increment by one each time
+		 * 
+		 */
+		
+}
+}

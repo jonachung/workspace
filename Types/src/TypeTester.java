@@ -1,0 +1,11 @@
+
+public class TypeTester {
+
+	public static void main(String[] args) {
+		Types newType = new Types();
+		System.out.println(newType.identify("Boy"));
+		System.out.println(newType.identify(23.5));
+		System.out.println(newType.identify(23));
+	}
+
+}

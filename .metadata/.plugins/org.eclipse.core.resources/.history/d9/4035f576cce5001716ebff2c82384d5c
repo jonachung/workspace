@@ -1,0 +1,20 @@
+
+public class QueensEightVersion2 {
+	
+	private String[][] queenArray;
+	
+	public QueensEightVersion2(int numRowsAndCol) 
+    {
+        queenArray = new String[numRowsAndCol][numRowsAndCol];
+        for (int row = 0; row < queenArray.length; row++)
+        {
+        	for (int column = 0; column < queenArray.length; column++)
+        	{
+        		queenArray[row][column] = " ";
+        	}
+        }
+    }
+	
+	
+
+}

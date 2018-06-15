@@ -1,0 +1,57 @@
+
+public class QueensEightVersion2 {
+	
+	private String[][] queenArray;
+	
+	public QueensEightVersion2(int numRowsAndCol) 
+    {
+        queenArray = new String[numRowsAndCol][numRowsAndCol];
+        for (int row = 0; row < queenArray.length; row++)
+        {
+        	for (int column = 0; column < queenArray.length; column++)
+        	{
+        		queenArray[row][column] = " ";
+        	}
+        }
+    }
+	
+	/**
+     * This method checks whether the position of the queen is valid at the location
+     * specified by the row and column.
+     * @param row
+     * @param column
+     * @return true if queen position is valid, false if not.
+     */
+    public boolean canPlaceQueen(int row, int column) 
+    {	
+    	
+    	for (int rowNumber = 0; rowNumber < row; rowNumber++)
+    	{
+    		if (queenPositions[rowNumber] == column)
+    		{
+    			return false;
+    		}
+    	}
+    	
+    	for (int rowNumber = 0; rowNumber < row; rowNumber++) // left top diagonal
+    	{
+    		if (queenPositions[rowNumber] - rowNumber == column - row)
+    		{
+    			return false;
+    		}
+    	}
+    	
+    	for (int rowNumber = 0; rowNumber < row; rowNumber++) // left right diagonal
+    	{
+    		if (queenPositions[rowNumber] + rowNumber == column + row)
+    		{
+    			return false;
+    		}
+    	}
+    		
+    	return true;
+    }
+	
+
+
+}

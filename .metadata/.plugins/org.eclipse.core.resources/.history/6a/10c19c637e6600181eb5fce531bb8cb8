@@ -1,0 +1,302 @@
+import org.junit.Assert;
+
+import org.junit.Test;
+
+
+/**
+ * This is a JUnit Test for the Board Class.
+ * 
+ * @author Jonathan
+ *
+ */
+public class BoardTest {
+
+	/**
+	 * Tests the default board constructor by creating an empty board
+	 * and iterating through every position in the checkerBoard and making
+	 * sure that every piece is null.
+	 */
+	@Test
+	public void testConstructor1() {
+		Board b = new Board(true);
+		for(int row = 0; row < 8; row += 1)
+			for(int column = 0; column < 8; column += 1)
+				Assert.assertNull(b.pieceAt(row, column));
+	}
+
+	/**
+	 * Tests the new board constructor by creating a board with its
+	 * starting positions for checkers and making sure that every piece
+	 * in the board is not null.
+	 */
+	@Test
+	public void testConstructor2() {
+		Board b = new Board(false);
+		final int NUM_ROWS = 3;
+		for (int row = 0; row < NUM_ROWS; row++)
+		{
+			for (int col = (row + 1) % 2; col < 8; col += 2)
+			{
+				Assert.assertEquals(b.pieceAt(row, col).isRed(), false);
+			}
+		}
+		for (int row = 7; row >= 8 - NUM_ROWS; row--)
+		{
+			for (int col = (row + 1) % 2; col < 8; col += 2)
+			{
+				Assert.assertEquals(b.pieceAt(row, col).isRed(), true);
+			}
+		}
+	}
+	
+	/**
+	 * Tests the pieceAt method by creating a board with its starting positions for
+	 * checkers and getting one piece object and one empty space object. There should
+	 * be one piece object and one empty space object.
+	 */
+	@Test
+	public void testPieceAtForPiecesCorrectType() {
+		Board sut = new Board();
+		
+		Piece piece = sut.pieceAt(0, 1);
+		Piece empty = sut.pieceAt(1, 1);
+		
+		Assert.assertNotNull(piece);
+		Assert.assertNull(empty);
+		
+		
+	}
+	
+	/**
+	 * Tests pieceAt() method for pieces that are out of bounds by
+	 * creating an empty board with a piece that is out of bounds
+	 * and checks if the piece is null or not.
+	 * The pieces that are out of bounds should be null objects only.
+	 */
+	@Test
+	public void testPieceAtForOutOfBounds(){
+		Board b = new Board(false);
+		
+		Piece piece = b.pieceAt(-1, -1);
+		
+		Assert.assertNull(piece);
+	}
+	
+	/**
+	 * Tests placePiece() method by placing a piece within the boundaries for
+	 * an empty board. A piece will first be placed within the boundaries for
+	 * the empty board until the placePiece() method is called in which case the piece's
+	 * final coordinates will be updated.
+	 * The test will check if the piece that was placed was not null.
+	 */
+	@Test
+	public void testPlacePiece()
+	{
+		Board b = new Board(true);
+		Piece piece = new Piece(false,0,1);
+		b.placePiece(piece, 1, 2);
+		Assert.assertNotNull(piece);
+	}
+	
+	/**
+	 * Tests removePiece() by creating a board setup with the default configuration for checkers.
+	 * A piece will be removed through the removePiece() method. After, the pieceAt method is
+	 * used to see whether the location of the removed piece returns null.
+	 */
+	@Test
+	public void testRemovePieceForCorrectPieces()
+	{
+		Board b = new Board();
+		b.removePiece(0, 1);
+		Assert.assertNull(b.pieceAt(0, 1));
+	}
+	
+	/**
+	 * Tests validMove() method for black piece that is supposed to make a regular
+	 * move down the checker board by creating a checker board with default configuration for 
+	 * checkers and making sure that the validmove method for a specific piece returns true.
+	 */
+	@Test
+	public void testValidMoveBlackRegularMove()
+	{
+		Board b = new Board();
+		Piece p = b.pieceAt(2, 1);
+		Assert.assertEquals(b.validMove(3, 2, p), true);
+	}
+	
+	/**
+	 *  validMove() method for black piece that is supposed to make a capture
+	 *  down the checker board by creating a empty checkerboard and adding two pieces,
+	 *  one black and one red piece, and making sure that the validmove method for
+	 *  the black piece returns true.
+	 */
+	@Test
+	public void testValidMoveBlackCapture()
+	{
+		Board b = new Board(true);
+		Piece red = new Piece(true, 0, 0);
+		Piece black = new Piece(false, 0, 0);
+		b.placePiece(black, 1, 2);
+		b.placePiece(red, 2, 3);
+		Assert.assertEquals(b.validMove(3, 4, black), true);
+	}
+	
+	/**
+	 * Tests validMove() method for red piece that is supposed to make a regular
+	 * move down the checker board by creating a checker board with default configuration for 
+	 * checkers and making sure that the validmove method for a specific piece returns true.
+	 */
+	@Test
+	public void testValidMoveRedRegularMove()
+	{
+		Board b = new Board();
+		Piece p = b.pieceAt(5, 0);
+		Assert.assertEquals(b.validMove(4, 1, p), true);
+	}
+	
+	/**
+	 * Tests validMove() method for red piece that is supposed to make a capture
+	 *  down the checker board by creating a empty checkerboard and adding two pieces,
+	 *  one black and one red piece, and making sure that the validmove method for
+	 *  the red piece returns true.
+	 */
+	@Test
+	public void testValidMoveRedCapture()
+	{
+		Board b = new Board(true);
+		Piece red = new Piece(true, 0, 0);
+		Piece black = new Piece(false, 0, 0);
+		b.placePiece(black, 1, 2);
+		b.placePiece(red, 2, 3);
+		Assert.assertEquals(b.validMove(0, 1, red), true);
+	}
+	
+	/**
+	 * Tests validMove() method for black piece that is supposed to make an invalid
+	 * move down the checker board by creating a empty checkerboard and adding one black piece
+	 * and making sure that the validmove method for
+	 *  the black piece returns false for wrong selections.
+	 *  
+	 *  Those wrong selections for the new locations are being a red square, the new locations 
+	 *  being too far away from standards (3 or more spaces), or going backwards when the piece is not a king
+	 *  yet.
+	 */
+	@Test
+	public void testValidMoveInvalidMoveBlack()
+	{
+		Board b = new Board(true);
+		Piece black = new Piece(false, 0, 0);
+		b.placePiece(black, 1, 2);
+		Assert.assertEquals(b.validMove(0,  1,  black), false);
+		Assert.assertEquals(b.validMove(4, 5, black), false);
+		Assert.assertEquals(b.validMove(2, 2, black), false);
+	}
+	
+	/**
+	 * Tests validMove() method for red piece that is supposed to make an invalid
+	 * move down the checker board by creating a empty checkerboard and adding one black piece
+	 * and making sure that the validmove method for
+	 *  the red piece returns false for wrong selections.
+	 *  
+	 *  Those wrong selections for the new locations are being a red square, the new locations 
+	 *  being too far away from standards (3 or more spaces), or going backwards when the piece is not a king
+	 *  yet.
+	 */
+	@Test
+	public void testValidMoveInvalidMoveRed()
+	{
+		Board b = new Board(true);
+		Piece red = new Piece(true, 0, 0);
+		b.placePiece(red, 6, 3);
+		Assert.assertEquals(b.validMove(7,  4,  red), false);
+		Assert.assertEquals(b.validMove(5, 3, red), false);
+		Assert.assertEquals(b.validMove(3, 0, red), false);
+	}
+	
+	/**
+	 * Tests validMove() method for red king piece that is supposed to make a regular
+	 * move down the checker board by creating a checker board with default configuration for 
+	 * checkers and making sure that the validmove method for a specific piece returns true.
+	 * 
+	 * The test also tests that the king piece can move both up or down across the board.
+	 */
+	@Test
+	public void testValidMoveRedKing()
+	{
+		Board b = new Board(true);
+		Piece red = new Piece(true, true, 0, 0);
+		b.placePiece(red, 6, 3);
+		Assert.assertEquals(b.validMove(5, 2, red), true);
+		Assert.assertEquals(b.validMove(7, 4, red), true);
+	}
+	
+	/**
+	 * Tests validMove() method for black king piece that is supposed to make a regular
+	 * move down the checker board by creating a checker board with default configuration for 
+	 * checkers and making sure that the validmove method for a specific piece returns true.
+	 * 
+	 * The test also tests that the king piece can move both up or down across the board.
+	 */
+	@Test
+	public void testValidMoveBlackKing()
+	{
+		Board b = new Board(true);
+		Piece black = new Piece(true, true, 0, 0);
+		b.placePiece(black, 1, 2);
+		Assert.assertEquals(b.validMove(0, 1, black), true);
+		Assert.assertEquals(b.validMove(2, 3, black), true);
+	}
+	
+	/**
+	 * Tests canSelect() method for the first move of a regular black piece.
+	 * It does this by creating a checker board with default configurations
+	 * for checkers and checking if a (row, column) location can be
+	 * selected or not.
+	 */
+	@Test
+	public void testCanSelectFirstMoveBlack() {
+		Board b = new Board();
+		
+		Assert.assertEquals(b.canSelect(0, 1), true);
+	}
+	
+	/**
+	 * Tests canSelect() method for the first move of a regular red piece.
+	 * It does this by creating an empty checker board with one red piece
+	 * checking if a (row, column) location for the piece can be
+	 * selected or not.
+	 */
+	@Test
+	public void testCanSelectFirstMoveRed() {
+		Board b = new Board(true);
+		Piece red = new Piece(true, 0, 0);
+		b.placePiece(red, 1, 2);
+		b.canSelect(1, 2);
+	}
+	
+	/**
+	 * Tests canSelect() method for the second move of a regular black piece.
+	 * It does this by creating a checker board with default configurations
+	 * for checkers and checking if a (row, column) location can be
+	 * selected or not after a piece was selected.
+	 */
+	@Test
+	public void testCanSelectSecondMoveBlack() {
+		Board b = new Board();
+		b.select(2, 1);
+		Assert.assertEquals(b.canSelect(3, 2), true);
+	}
+	
+	/**
+	 * Tests canSelect() method for the second move of a regular black piece.
+	 * It does this by creating a checker board with default configurations
+	 * for checkers and checking if a (row, column) location can be
+	 * selected or not after a piece was selected.
+	 */
+	@Test
+	public void testCanSelectSecondMoveRed() {
+		Board b = new Board();
+		b.select(5, 2);
+		Assert.assertEquals(b.canSelect(4, 1), true);
+	}
+}

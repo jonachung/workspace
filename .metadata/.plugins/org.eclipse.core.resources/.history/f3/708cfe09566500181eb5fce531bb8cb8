@@ -1,0 +1,561 @@
+
+/**
+ * This class creates the board for the checkers game. The properties of a checkerBoard object are the checkerBoard array, the Pieces array, the current Size for the Pieces 
+ * array, whether a piece moved or not in a player's turn, which piece is going to be moved in a player's turn, and whose turn it is 
+ * during the game.
+ * 
+ * The board class has two constructors, with one that doesn't take in a parameter and one that takes in a boolean 
+ * parameter. The constructor that takes in a boolean parameter creates an empty board with no pieces
+ * for testing purposes if the parameter is true. A GUI with an empty board would be created. If the parameter 
+ * is false, a board is initialized with the checker pieces at the starting positions for checkers. For that constructor,
+ * the checkerboard GUI would be drawn with the checker pieces at the starting positions. The constructor that doesn't take in 
+ * a parameter creates the board with all the pieces at the starting positions for checkers.
+ * 
+ * The starting positions for the checkers pieces are that the dark pieces are on the top 3 rows and the red pieces are 
+ * on the bottom 3 rows. Only the black squares are filled with pieces.
+ * In the main method, the checkerBoard object is created, which in turn 
+ * creates the checkerBoard GUI.
+ * The board class uses the playCheckersGame method to start a new game of checkers and does not exit the
+ * method until the game is over. The player with the dark pieces
+ * goes first and can use the mouse to move a piece one space diagonally down to the left or right on the board. 
+ * After the player's turn, they can press the Spacebar key to signal the next player's turn.
+ * The player with the red pieces
+ * goes second and can use the mouse to move a piece one space diagonally up to the left or right on the board.
+ * Capturing is when a player moves two spaces diagonally up or down depending on
+ * what color the piece is with the opponent's piece in between.  Once a piece is
+ * captured, it disappears from the board. After a player captures a piece, they can choose whether they want to capture another piece if possible.  
+ * When a piece reaches the other side of 
+ * the board, it will become a king piece, which is similar to a regular piece, but can move in both directions.
+ * 
+ * The game is over when there are no red or dark pieces left on the board.
+ * Whoever's pieces are left on the board is the winner of the game and a message stating who
+ * won the game will be printed out in the program.
+ * 
+ * @author Jonathan
+ *
+ */
+public class Board {
+		
+	public static final int DEFAULT_LENGTH = 8;
+	
+	private Piece[][] checkerBoard;
+	
+	private boolean pieceCaptured; // should initially be false
+	
+	private boolean pieceMoved; // if piece moved or not, should initially be false
+	
+	private Piece selectedPiece; // which piece is being selected, should initially be null
+	
+	private boolean isBlacksTurn; // should initially be true
+		
+	/**
+	 * This constructor calls the other constructor 
+	 * Board with the parameter false, meaning that
+	 * the checker board GUI, checker board array, and pieces
+	 * array are all initialized. This constructor sets up the board 
+	 * ready for a game of checkers. 
+	 * 
+	 */
+	public Board()
+	{
+		this(false);
+	}
+	
+	/**
+	 * The constructor for Board. If the parameter test is true, initialize an empty Board for 
+	 * testing purposes. During testing purposes, the checkerBoard array would be initialized with null objects. 
+	 * However, if test is false,  
+	 * the checker board GUI is initialized with the checker pieces at the starting positions for checkers.
+	 * 
+	 * @param test		if true, initialize empty board. if false, initialize board with default configuration
+	 */
+	public Board(boolean test) 
+	{
+		final int NUM_ROWS = 3;
+		isBlacksTurn = true;
+		pieceCaptured = false;
+		pieceMoved = false;
+		selectedPiece = null;
+		checkerBoard = new Piece[DEFAULT_LENGTH][DEFAULT_LENGTH];
+		for (int row = 0; row < checkerBoard.length; row++) 
+		{
+			for (int column = 0; column < checkerBoard[row].length; column++) 
+			{
+				checkerBoard[row][column] = null;
+			}
+		}
+		this.drawBoard();
+		if (!test)
+		{	
+			for (int row = 0; row < NUM_ROWS; row++)
+			{
+				for (int col = (row + 1) % 2; col < checkerBoard[row].length; col += 2)
+				{
+					this.placePiece(new Piece(false, row, col), row, col);
+				}
+			}
+			for (int row = checkerBoard.length - 1; row >= checkerBoard.length - NUM_ROWS; row--)
+			{
+				for (int col = (row + 1) % 2; col < checkerBoard[row].length; col += 2)
+				{
+					this.placePiece(new Piece(true, row, col), row, col);
+				}
+			}
+		}	
+	}
+	
+	/**
+	 * Gets the piece at position (row, col) on the board, 
+	 * or null if there is no piece. If (row, col) are out of bounds, 
+	 * returns null.
+	 * @param row		row location on board
+	 * @param col		column location on board
+	 * @return			Piece object at that row and column location or null if no piece or location is out-of-bounds
+	 */
+	public Piece pieceAt(int row, int col)
+	{
+		if (row < checkerBoard.length && row >= 0 && col < checkerBoard.length && col >= 0)
+		{
+			return checkerBoard[row][col];
+		}
+		return null;
+	}
+	
+	/**
+	 * Places a piece object at (row, column). The method updates the physical location of the checkerBoard array for
+	 * the specific piece, updates the row and column instance variable of the Piece object, and updates the checker
+	 * board GUI. 
+	 * 
+	 * @param piece		piece object
+	 * @param row		row location of test piece
+	 * @param column		column location of test piece
+	 */
+	public void placePiece(Piece piece, int row, int column)
+	{
+		checkerBoard[row][column] = piece;
+		piece.movePiece(row, column);
+		this.drawPiece(piece);
+	}
+	
+	/**
+	 * Executes the removal of a piece specified by (row, column) and returns the piece 
+	 * that was removed. The piece would be removed from the 
+	 * checkerboard array. The checker board GUI would be updated by drawing a square over
+	 * the location of the removed piece.
+	 * 
+	 * 
+	 * @param row		row location of piece removed
+	 * @param column		column location of piece removed
+	 * @return		the piece object that was removed
+	 */
+	public Piece removePiece(int row, int column)
+	{
+		Piece returned = checkerBoard[row][column];
+		checkerBoard[row][column] = null;
+		this.drawSquare(row, column);
+		return returned;	
+	}
+	
+	/**
+	 * The method takes into account whether the currentPiece is a king since if this
+	 * is true, the piece is allowed to move diagonally to the left or right in the up and down direction. If 
+	 * the currentPiece is not a king, it is only allowed to move diagonally to the left or right in the up or down direction, which
+	 * is dependent on what color the piece is. The piece moves down across the board 
+	 * if the piece is black or up across the board if the piece is red. 
+	 * 
+	 * The method checks if the newRow and newColumn parameters are 1 or 2 spaces diagonally to the
+	 * left or right, up or down on the board from the row and column properties of the currentPiece. 
+	 * If the newRow
+	 * and newColumn parameters are 2 spaces diagonally from the currentPiece, the method finds if the space between the currentPiece and the space
+	 * at (newRow, newColumn) has an opposing piece there. If there is an opposing piece
+	 * there, the move is valid. 
+	 * If the newRow and newColumn parameters are 1 space diagonally to the
+	 * left or right, up or down on the board from the row and column properties of the currentPiece, the move is valid.
+	 * 
+	 * 
+	 * @param newRow		the row location of where piece should be moved to
+	 * @param newColumn				the column location of where piece should be moved to
+	 * @param currentPiece			Piece object of piece that is being judged whether it can move or not
+	 * @return		true if piece can be moved to new board location, false if piece can not be placed
+	 */
+	public boolean validMove(int newRow, int newColumn, Piece currentPiece) 
+	{
+		int colDifference = currentPiece.getColumn() - newColumn;
+		int rowDifference = currentPiece.getRow() - newRow;
+		if ((colDifference == 1) || (colDifference == -1))
+		{
+			if (!currentPiece.isKing())
+			{
+				if ((rowDifference == 1) && (!currentPiece.isRed())) // black
+				{
+					return true;
+				} else if ((rowDifference == -1)  && (currentPiece.isRed())) // red
+				{
+					return true;
+				}
+			} else
+			{
+				if ((rowDifference == 1) || (rowDifference == -1)) //king
+				{
+					return true;
+				}
+			}
+		} else if ((colDifference == 2) || (colDifference == -2))
+		{
+			Piece middlePiece = this.pieceAt((currentPiece.getRow() + newRow) / 2, (currentPiece.getColumn() + newColumn) / 2);
+			if (middlePiece != null && middlePiece.isRed() != currentPiece.isRed())
+			{
+				if (!currentPiece.isKing())
+				{
+					if ((rowDifference == 2) && (!currentPiece.isRed())) // black
+					{
+						pieceCaptured = true;
+						return true;
+					} else if ((rowDifference == -2)  && (currentPiece.isRed())) // red
+					{
+						pieceCaptured = true;
+						return true;
+					}
+				} else
+				{
+					if ((rowDifference == 2) || (rowDifference == -2)) //king
+					{
+						pieceCaptured = true;
+						return true;
+					}
+				}
+			}
+		}
+		return false;
+	}
+	
+	
+	/**
+	 * This method first checks if the user-specified row and column locations are out of bounds. 
+	 * 
+	 * Then if the row and column locations are in bounds, the method checks if the coordinate at (row, column) is an 
+	 * empty square or a square with a piece. The method
+	 * makes this check by using the pieceAt method to see if there is a piece at that square or not.
+	 * 
+	 * SQUARE WITH PIECE:
+	 * If there is a piece, the method checks if the piece is your piece and if you made a move already or not.
+	 * If the piece is not your piece, the method returns false and the piece cannot be selected.
+	 * If the piece is your piece and you have already made a move, the method returns false and the piece cannot be selected.
+	 * If the piece is your piece and you have not made a move already, you can select the piece and the method would return true.
+	 * 
+	 * EMPTY SQUARE:
+	 * 
+	 * First checks if pieceSelected variable is initialized or not.  
+	 * If the variable is not initialized, an empty square cannot be selected and the method returns false.
+	 * This method uses the validMove method to see if the piece can move to that location or not.
+	 * If the variable is initialized but the validMove method returns false, an empty square cannot be selected and the method returns false. 
+	 * If the variable is initialized and the valid move method returns true, the method returns true and the square can be selected.
+	 * If the variable is initialized, the move made before was a capture, the valid move method returns true, and the move being made is a capture,
+	 * an empty square can be selected and the method returns true.
+	 * In any other case, an empty square cannot be selected and the method returns false.
+	 * 
+	 * 
+	 * @param row		row location of square selected
+	 * @param column		column location of square selected
+	 * @return		Returns true if square at (row, column) can be selected
+	 */
+	public boolean canSelect(int row, int column)
+	{
+		if (row >= 0 && row < checkerBoard.length && column >= 0 && column < checkerBoard.length)
+		{
+			Piece spaceSelected = checkerBoard[row][column];
+	        if ((spaceSelected != null) && (spaceSelected.isRed() != isBlacksTurn)) 
+	        {
+	            if (!pieceMoved) 
+	            {
+	                return true;
+	            }
+	        } else if (spaceSelected == null)  
+	        {
+	            if (selectedPiece != null && !pieceMoved && validMove(row, column, selectedPiece)) 
+	            {
+	            	System.out.println("True");
+	                return true;
+	            } else if (selectedPiece != null && pieceCaptured && validMove(row, column, selectedPiece)) 
+	            {
+	                return true;
+	            }
+	        }
+		}
+        
+        return false;
+	}
+	
+	/**
+	 * Selects the piece or empty square at (row, column). This method assumes canSelect() returned 
+	 * true.  
+	 * 
+	 * When the square is selected, 
+	 * the method will make the background of the square to be 
+	 * white on the GUI. The piece object is initialized to the variable selectedPiece.
+	 *  
+	 * Otherwise, if an empty square is selected, the most recently selected piece should be moved
+	 * to that square. The selected piece is in the selectedPiece variable. 
+	 * The new piece location would be updated on 
+	 * the checkerboard array and the checkerboard GUI using the placePiece method and the piece at the old
+	 * location would be removed using the removePiece method. When performing a capture, the new piece location would be updated the same way as if
+	 * performing a regular move, but the piece that is captured would be removed using the removePiece
+	 * method. After that, the instance variable that states whether
+	 * a piece moved or not (pieceMoved) would be assigned to true.
+	 * 
+	 * @param row		row location of square selected
+	 * @param column		column location of square selected
+	 */
+	public void select(int row, int column)
+	{	
+		if (selectedPiece == null || (pieceAt(row, column) != null && !pieceMoved))
+		{
+			StdDrawPlus.setPenColor(StdDrawPlus.WHITE);
+			StdDrawPlus.filledSquare(column + .5, checkerBoard.length - row - .5, 0.5);
+        	selectedPiece = checkerBoard[row][column];
+    	} else 
+    	{
+    		if ((row - selectedPiece.getRow() == 2 || row - selectedPiece.getRow() == -2) &&
+					(column - selectedPiece.getColumn() == 2 || column - selectedPiece.getColumn() == -2))
+			{
+				this.removePiece((row + selectedPiece.getRow()) / 2, (column + selectedPiece.getColumn()) / 2);
+			}
+    		//this.removePiece(selectedPiece.getRow(), selectedPiece.getColumn());
+    		this.drawSquare(selectedPiece.getRow(), selectedPiece.getColumn());
+    		this.placePiece(selectedPiece, row, column);
+        	pieceMoved = true;
+    	}
+	}
+	
+	/**
+	 * Returns the winner of the game: Light or Dark. If only light pieces 
+	 * remain on the board, light wins. If only dark pieces remain, dark wins. 
+	 * If the game is still in progress (i.e. there are pieces from both sides 
+	 * still on the board), return null.
+	 * 
+	 * In the method, there will be two variables that store the count for each color of the pieces.
+	 * The method would go through the pieces array and get the color of 
+	 * the pieces for each piece in that array. When getting the color, the variable
+	 * for the respective color will be incremented.
+	 * 
+	 * If one of the variables is 0 after iterating through the whole pieces array,
+	 * the game is over and the winner of the game (whichever color is still standing) wins the game.
+	 * @return		String message for winner of game.
+	 */  
+	public String winner()
+	{
+		int redPieces = 0;
+		int blackPieces = 0;
+		for (int row = 0; row < checkerBoard.length; row++)
+		{
+			for (int col = 0; col < checkerBoard.length; col++)
+			{
+				if (this.pieceAt(row, col) != null && this.pieceAt(row, col).isRed())
+				{
+					redPieces++;
+				} else 
+				{
+					blackPieces++;
+				}
+			}
+		}
+		if (redPieces == 0)
+		{
+			return "Red wins!";
+		} else if (blackPieces == 0)
+		{
+			return "Black wins!";
+		} else
+		{
+			return null;
+		}
+	}
+	
+	/**
+	 * Returns whether or not the current player can end their turn. 
+	 * To be able to end a turn, a piece must have moved to a valid location.
+	 * There will be an instance variable that checks whether a 
+	 * piece moved or not (pieceMoved). If that piece moved, then the turn can be ended.
+	 * 
+	 * @return		true if turn could be ended, false if turn cannot be ended.
+	 */
+	public boolean canEndTurn()
+	{
+		return pieceMoved;
+	}
+	
+	/**
+	 * Called at the end of each turn. Handles switching
+	 * of players and reinitializing of instance variables in the Board class.
+	 * The instance variables get assigned to where they were before. 
+	 * pieceMoved will be assigned to false. selectedPiece will be initialized
+	 * to null.
+	 */
+	public void endTurn()
+	{
+		isBlacksTurn = !isBlacksTurn;
+		pieceMoved = false;
+		selectedPiece = null;
+	}
+	
+	/**
+	 * The board class uses the playCheckersGame method to start a new game of checkers. 
+	 * The playCheckersGame calls the methods of the board class
+	 * to play the game. The methods that playCheckersGame calls are canSelect, select, 
+	 * winner, canEndTurn, and endTurn. 
+	 * 
+	 * There will be a boolean instance variable (isBlacksTurn) that takes
+	 * into account whose turn it is during the game. During a player's turn, the player uses the 
+	 * mouse to select a place. The x and y coordinates of the place where the user made the mouse
+	 * click will be set as the row and column parameters of the canSelect method. If the place can
+	 * not selected, the user can keep clicking on the board until canSelect returns true. Once canSelect returns 
+	 * true, the select method is called. 
+	 * 
+	 * After a move is done, if the piece reaches the outer upper (for red) or lower (for blue) boundaries, the piece
+	 * automatically becomes a king and is crowned. Otherwise, the piece does not become a king. After this evaluation for whether 
+	 * the piece is a king or not, the user can press the spaceBar key to end a turn. After the user presses the 
+	 * spaceBar key, the method canEndTurn is called to see if the user can end their turn. If
+	 * the user can not end their turn, then nothing happens and the user will have to make a legitimate
+	 * move in order to end their turn. If a user can end their turn (canEndTurn returns true), endTurn is
+	 * called and then the winner method
+	 * is called to see if there is a winner yet or not. If there is no winner, then it becomes the next
+	 * player's turn, which can be changed through the isBlacksTurn variable. If there is a winner, a message
+	 * pops out.
+	 * 
+	 * 
+	 */
+	public void playCheckersGame()
+	{	
+		boolean game = true;
+		while (game)
+		{
+			if (StdDrawPlus.mousePressed()) 
+			{
+                int col = (int) StdDrawPlus.mouseX();
+                int row = checkerBoard.length - (int) StdDrawPlus.mouseY() - 1;
+                System.out.println(row + " " + col);
+                System.out.println(this.canSelect(row, col));
+                if (this.canSelect(row, col))
+                {
+                	System.out.println("Can Select");
+                	this.select(row, col);
+                	System.out.println("Selected");
+
+                }
+            }
+			
+			if (pieceMoved)
+			{
+				if ((selectedPiece.isRed() && selectedPiece.getRow() == 0) || (!selectedPiece.isRed() && selectedPiece.getRow() == checkerBoard.length - 1))
+				{
+					selectedPiece.becomesKing();
+				}
+			}
+			
+			if (StdDrawPlus.isSpacePressed())
+			{
+				if (this.canEndTurn())
+				{
+					this.endTurn();
+				}
+				
+				if (this.winner() != null)
+				{
+					game = false;
+				}
+			}
+		}
+		System.out.println(this.winner());
+    }
+	
+	
+	/**
+	 * The method creates a gameBoard for checkers with the pieces at the 
+	 * starting positions. After the board is created, the game is ready to
+	 * be played.
+	 * 
+	 * @param args		not used		
+	 */
+	public static void main(String[] args)
+	{
+		Board gameBoard = new Board();
+		gameBoard.playCheckersGame();
+	}
+	
+	/****************************************************************************/
+	
+	/**
+	 * Draws the checker board of length based on the number of queens using
+	 * methods from the StdDrawPlus class by looping through the array of queens
+	 * and drawing squares of red or gray depending on the row and column
+	 * coordinates of the squares.
+	 */
+	public void drawBoard() {
+		int length = checkerBoard.length;
+		StdDrawPlus.setXscale(0, length);
+		StdDrawPlus.setYscale(0, length);
+		for (int row = 0; row < checkerBoard.length; row++) {
+			for (int column = 0; column < checkerBoard.length; column++) {
+				this.drawSquare(row, column);
+			}
+		}
+	}
+	
+	/**
+	 * Draws the piece on the board created by methods of the StdDrawPlus class.
+	 * The piece is drawn using an image of the piece depending on the piece object 
+	 * and is drawn on the user-specified row and column locations.
+	 * 
+	 * @param row
+	 *            the row value of the queen
+	 * @param column
+	 *            the column value of the queen
+	 */
+	public void drawPiece(Piece piece) 
+	{
+		String image = "";
+		if (piece.isRed())
+		{
+			if (piece.isKing())
+			{
+				image = "img/pawn-light-crowned.png";
+			} else
+			{
+				image = "img/pawn-light.png";
+			}
+		} else 
+		{
+			if (piece.isKing())
+			{
+				image = "img/pawn-dark-crowned.png";
+			} else
+			{
+				image = "img/pawn-dark.png";
+			}
+		}
+		StdDrawPlus.picture(piece.getColumn() + .5, checkerBoard.length - piece.getRow() - .5, image , 1, 1);
+
+	}
+
+	/**
+	 * Draws a square on the GUI using methods from the StdDrawPlus class based
+	 * on its row and column location on the board. The square will also be
+	 * colored red or gray based on its respective row and column locations.
+	 * 
+	 * @param row
+	 *            the row value of the queen
+	 * @param column
+	 *            the column value of the queen
+	 */
+	public void drawSquare(int row, int column) 
+	{
+		if (row % 2 == column % 2) {
+			StdDrawPlus.setPenColor(StdDrawPlus.RED);
+			StdDrawPlus.filledSquare(column + .5, checkerBoard.length - row - .5, 0.5);
+		} else {
+			StdDrawPlus.setPenColor(StdDrawPlus.GRAY);
+			StdDrawPlus.filledSquare(column + .5, checkerBoard.length - row - .5, 0.5);
+		}
+	}
+
+}

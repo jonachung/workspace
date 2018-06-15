@@ -1,0 +1,15 @@
+
+public class TypeTester {
+
+	public static void main(String[] args) {
+		
+		//System.out.println(Types.identify("Boy")); //static is used when there is no object. it is part of the class.
+		//System.out.println(Types.identify(23));
+		//System.out.println(Types.identify(34.5));
+		Types newType = new Types();
+		System.out.println(newType.identify("Boy"));
+		System.out.println(newType.identify(var));
+
+	}
+
+}

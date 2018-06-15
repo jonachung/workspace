@@ -1,0 +1,18 @@
+
+public class CheckersTester {
+
+	public static void main(String[] args) {
+		Board testBoard = new Board(true);
+		//Piece testPiece = new Piece(false, 0, 0);
+		//testPiece.becomesKing();
+		//testBoard.placePiece(testPiece, 0, 1);
+		//System.out.println(testBoard.remove(0, 1));
+		//System.out.println(testBoard.validMove(1, 0, testPiece));
+		//Piece testPiece2 = null;// = new Piece(true, 1, 1);
+		//testBoard.placePiece(testPiece2, 4, 3);
+		//System.out.println(testBoard.pieceAt(0, 1).getRow());
+		//System.out.println(testBoard.pieceAt(0, 0));
+		//System.out.println(testBoard.pieceAt(8, 8));
+	}
+
+}

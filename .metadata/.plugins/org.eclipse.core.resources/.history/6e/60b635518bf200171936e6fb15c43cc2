@@ -1,0 +1,190 @@
+
+public class QueensEightVersion2 {
+	/**
+	 * "-" -> cannot place queen there
+	 * " " -> empty avaliable space
+	 * "Q" -> queen is there
+	 */
+	
+	private String[][] queenArray;
+	
+	public QueensEightVersion2(int numRowsAndCol) 
+    {
+        queenArray = new String[numRowsAndCol][numRowsAndCol];
+        for (int row = 0; row < queenArray.length; row++)
+        {
+        	for (int column = 0; column < queenArray.length; column++)
+        	{
+        		queenArray[row][column] = " ";
+        	}
+        }
+    }
+	
+	public void printQueens() 
+    {   
+        for (int row = 0; row < queenArray.length; row++)
+        {
+        	for (int column = 0; column < queenArray.length; column++)
+        	{
+        		if (queenArray[row][column] == "Q")
+        		{
+        			System.out.print("Q ");
+        		} else
+        		{
+        			System.out.print("* ");
+        		}
+        	}
+        	System.out.println();
+        }
+    	System.out.println();
+    }
+	
+	public void update(int row) 
+	{
+		for (int column = 0; column < queenArray.length; column++)
+		{
+			if (queenArray[row][column] == "Q")
+			{
+				for (int rowForColumn = row + 1; rowForColumn < queenArray.length; rowForColumn++)
+				{
+					if (queenArray[rowForColumn][column] == " ")
+					{
+						queenArray[rowForColumn][column] = row + "";
+					}
+				}
+				if (column < queenArray.length - 1)
+				{
+					for (int rightDiagFactor = 1; column + rightDiagFactor < queenArray.length && row + rightDiagFactor < queenArray.length; rightDiagFactor++)
+					{
+						if (queenArray[row + rightDiagFactor][column + rightDiagFactor] == " ")
+						{
+							queenArray[row + rightDiagFactor][column + rightDiagFactor] = row + "";
+						}
+					}
+				}	
+				if (column > 0)
+				{
+					for (int leftDiagFactor = 1; column - leftDiagFactor >= 0 && row + leftDiagFactor < queenArray.length; leftDiagFactor++)
+					{
+						if (queenArray[row + leftDiagFactor][column - leftDiagFactor] == " ")
+						{
+							queenArray[row + leftDiagFactor][column - leftDiagFactor] = row + "";
+						}						
+					}
+				}
+			}
+		}
+	}
+	
+	public void erase(int row, int[] queenPositions)
+	{
+				for (int rowForColumn = row + 1; rowForColumn < queenArray.length; rowForColumn++)
+				{
+					if (queenArray[rowForColumn][queenPositions[row]] == row + "")
+					{
+						queenArray[rowForColumn][queenPositions[row]] = " ";
+					}
+				}
+				for (int rightDiagFactor = 1; queenPositions[row] + rightDiagFactor < queenArray.length && row + rightDiagFactor < queenArray.length; rightDiagFactor++)
+				{
+					if (queenArray[row + rightDiagFactor][queenPositions[row] + rightDiagFactor] == row + "")
+					{
+						queenArray[row + rightDiagFactor][queenPositions[row] + rightDiagFactor] = " ";
+					}
+				}
+					
+				for (int leftDiagFactor = 1; queenPositions[row] - leftDiagFactor >= 0 && row + leftDiagFactor < queenArray.length; leftDiagFactor++)
+				{
+					if (queenArray[row + leftDiagFactor][queenPositions[row] - leftDiagFactor] == row + "")
+					{
+						queenArray[row + leftDiagFactor][queenPositions[row] - leftDiagFactor] =  " ";
+					}						
+				}	
+		}
+	
+	public void printArray()
+	{
+		for (int row = 0; row < queenArray.length; row++)
+        {
+        	for (int column = 0; column < queenArray.length; column++)
+        	{
+        		if (queenArray[row][column] == "Q")
+        		{
+        			System.out.print("Q ");
+        		} else if (queenArray[row][column] == " ")
+        		{
+        			System.out.print("* ");
+        		} else
+        		{
+        			System.out.print("X ");
+        		}
+        	}
+        	System.out.println();
+        }
+    	System.out.println();
+	}
+	
+	public void placeQueen()
+	{	
+		/**
+		place queen at first avaliable spot
+		find spots where cannot put queen and mark them
+		at next row place queen at next avaliable spot
+		find spots where cannot put queen for that row and mark them
+			if spot is already marked, skip spot and move onward
+		**/
+		int row = 0; 
+		int column = 0;
+		int count = 0;
+		int[] queenPositions = new int[queenArray.length];
+		while (row >= 0)
+		{	
+			if (column < queenArray.length)
+			{
+				if (queenArray[row][column] == " ")
+				{
+					queenArray[row][column] = "Q";
+					queenPositions[row] = column;
+					//System.out.println(queenPositions[row]);
+					this.update(row);
+					if (row < queenArray.length - 1)
+					{
+						row++;
+						column = 0;
+					} else
+					{
+						count++;
+        				System.out.println("Solution: " + count);
+        				System.out.println();
+                		this.printQueens();
+        				column++;
+					}
+				} else
+				{
+					column++;
+				}
+			} else
+			{
+				row--;
+				this.erase(row, queenPositions);
+				column = queenPositions[row];
+				queenArray[row][column] = " ";
+				this.update(row);
+				column++;
+			}
+			this.printArray();
+			//System.out.println();
+			//System.out.println(queenArray[4][1]);
+		}
+		
+	}
+	
+    	
+    
+    	
+}
+    
+	
+
+
+
